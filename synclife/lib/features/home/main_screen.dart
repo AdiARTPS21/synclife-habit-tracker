@@ -41,7 +41,7 @@ class MainScreen extends ConsumerWidget {
         data: NavigationBarThemeData(
           backgroundColor: Colors.white,
           elevation: 0,
-          indicatorColor: primaryBlue.withOpacity(0.1),
+          indicatorColor: primaryBlue.withValues(alpha: 0.1),
           labelTextStyle: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
               return GoogleFonts.inter(

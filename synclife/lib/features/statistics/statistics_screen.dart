@@ -121,13 +121,13 @@ class StatisticsScreen extends ConsumerWidget {
     final statsAsync = ref.watch(statisticsProvider);
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+     backgroundColor: const Color(0xFFEEF2FF),
       appBar: AppBar(
         title: Text(
           'Statistics',
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
-            color: Colors.deepPurple,
+            color: const Color(0xFF2B3A8C),
             fontSize: 26,
           ),
         ),
@@ -186,7 +186,7 @@ class StatisticsScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildBarChart(stats.weeklyConsistency),
+                _buildBarChart(stats.weeklyConsistency, context),
                 const SizedBox(height: 32),
                 Text(
                   'Predictive Insights',
@@ -224,7 +224,7 @@ class StatisticsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -236,7 +236,7 @@ class StatisticsScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 28),
@@ -266,7 +266,80 @@ class StatisticsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBarChart(List<int> weeklyData) {
+Widget _buildBarChart(List<int> weeklyData, BuildContext context) {
+    final bool isEmpty = weeklyData.every((v) => v == 0);
+
+    if (isEmpty) {
+      return Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 250),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2B3A8C).withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.bar_chart_rounded,
+                size: 48,
+                color: Color(0xFF2B3A8C),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Belum Ada Data',
+              style: GoogleFonts.outfit(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Selesaikan habit harianmu\nuntuk melihat konsistensimu di sini!',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: Colors.grey.shade500,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2B3A8C).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '🎯 Mulai hari ini!',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF2B3A8C),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     int maxY = weeklyData.reduce((a, b) => a > b ? a : b);
     if (maxY == 0) maxY = 5;
 
@@ -289,7 +362,7 @@ class StatisticsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -302,7 +375,7 @@ class StatisticsScreen extends ConsumerWidget {
           barTouchData: BarTouchData(
             enabled: true,
             touchTooltipData: BarTouchTooltipData(
-              getTooltipColor: (_) => Colors.deepPurple,
+              getTooltipColor: (_) => const Color(0xFF2B3A8C),
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 return BarTooltipItem(
                   '${rod.toY.round()} Habits',
@@ -324,7 +397,7 @@ class StatisticsScreen extends ConsumerWidget {
                       child: Text(
                         shiftedDays[index],
                         style: GoogleFonts.inter(
-                          color: index == 6 ? Colors.deepPurple : Colors.grey.shade500,
+                          color: index == 6 ? const Color(0xFF2B3A8C) : Colors.grey.shade500,
                           fontWeight: index == 6 ? FontWeight.bold : FontWeight.w500,
                           fontSize: 12,
                         ),
@@ -355,7 +428,7 @@ class StatisticsScreen extends ConsumerWidget {
               barRods: [
                 BarChartRodData(
                   toY: weeklyData[index].toDouble(),
-                  color: index == 6 ? Colors.deepPurple : Colors.deepPurpleAccent.withOpacity(0.5),
+                  color: index == 6 ? const Color(0xFF2B3A8C) : const Color(0xFF2B3A8C).withValues(alpha: 0.5),
                   width: 16,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
                   backDrawRodData: BackgroundBarChartRodData(
@@ -381,7 +454,7 @@ class StatisticsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: hasData 
-            ? [Colors.deepPurpleAccent, Colors.deepPurple]
+            ? [const Color(0xFF2B3A8C), const Color(0xFF2B3A8C)]
             : [Colors.grey.shade400, Colors.grey.shade600],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -389,7 +462,7 @@ class StatisticsScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: (hasData ? Colors.deepPurple : Colors.grey).withOpacity(0.3),
+            color: (hasData ? const Color(0xFF2B3A8C) : Colors.grey).withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -400,7 +473,7 @@ class StatisticsScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(

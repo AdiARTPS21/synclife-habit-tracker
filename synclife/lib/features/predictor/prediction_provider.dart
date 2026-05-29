@@ -51,19 +51,31 @@ final predictionProvider = FutureProvider<PredictionResult>((ref) async {
     if (log.timestamp != null) {
       // Day
       if (log.timestamp!.weekday == currentDay) {
-        if (isSuccess) successOnDay++; else failOnDay++;
+        if (isSuccess) {
+          successOnDay++;
+        } else {
+          failOnDay++;
+        }
       }
       
       // Time (Morning vs Evening)
       bool logIsMorning = log.timestamp!.hour < 15;
       if (logIsMorning == isMorning) {
-        if (isSuccess) successOnTime++; else failOnTime++;
+        if (isSuccess) {
+          successOnTime++;
+        } else {
+          failOnTime++;
+        }
       }
     }
 
     // Mood
     if (log.moodLevel == lastMood) {
-      if (isSuccess) successOnMood++; else failOnMood++;
+      if (isSuccess) {
+        successOnMood++;
+      } else {
+        failOnMood++;
+      }
     }
   }
 

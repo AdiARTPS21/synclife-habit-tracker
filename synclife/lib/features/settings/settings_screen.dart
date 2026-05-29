@@ -7,13 +7,13 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: const Color(0xFFEEF2FF),
       appBar: AppBar(
         title: Text(
           'Settings',
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
-            color: Colors.deepPurple,
+            color: const Color(0xFF2B3A8C),
             fontSize: 26,
           ),
         ),
@@ -33,7 +33,7 @@ class SettingsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
@@ -45,7 +45,7 @@ class SettingsScreen extends StatelessWidget {
                     height: 72,
                     width: 72,
                     decoration: BoxDecoration(
-                      color: Colors.deepPurple.shade100,
+                      color: const Color(0xFFBBCCEE),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -54,7 +54,7 @@ class SettingsScreen extends StatelessWidget {
                         style: GoogleFonts.outfit(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          color: const Color(0xFF2B3A8C),
                         ),
                       ),
                     ),
@@ -95,7 +95,7 @@ class SettingsScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
@@ -133,10 +133,10 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.deepPurple.shade50,
+          color: const Color(0xFFDDE5F5),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: Colors.deepPurple, size: 24),
+        child: Icon(icon, color: const Color(0xFF2B3A8C), size: 24),
       ),
       title: Text(
         title,

@@ -210,7 +210,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _icons.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  separatorBuilder: (_, _) => const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     final icon = _icons[index];
                     final isSelected = _selectedIcon == icon;
@@ -220,7 +220,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                         duration: const Duration(milliseconds: 200),
                         width: 64,
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.indigo.withOpacity(0.1) : Colors.grey.shade50,
+                          color: isSelected ? Colors.indigo.withValues(alpha: 0.1) : Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected ? Colors.indigo : Colors.grey.shade200,
@@ -284,7 +284,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
                         border: isSelected ? Border.all(color: Colors.black87, width: 3) : null,
                         boxShadow: [
                           BoxShadow(
-                            color: _hexToColor(hex).withOpacity(0.4),
+                            color: _hexToColor(hex).withValues(alpha: 0.4),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),

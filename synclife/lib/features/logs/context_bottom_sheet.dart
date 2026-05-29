@@ -114,10 +114,10 @@ class _ContextBottomSheetState extends ConsumerState<ContextBottomSheet> {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.deepPurple.withOpacity(0.1) : Colors.transparent,
+                    color: isSelected ? const Color(0xFF2B3A8C).withValues(alpha: 0.1) : Colors.transparent,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isSelected ? Colors.deepPurple : Colors.grey.shade300,
+                      color: isSelected ? const Color(0xFF2B3A8C) : Colors.grey.shade300,
                       width: isSelected ? 2 : 1,
                     ),
                   ),
@@ -155,7 +155,7 @@ class _ContextBottomSheetState extends ConsumerState<ContextBottomSheet> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: const Color(0xFF2B3A8C),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -191,10 +191,10 @@ class _ContextBottomSheetState extends ConsumerState<ContextBottomSheet> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.deepPurple : Colors.white,
+            color: isSelected ? const Color(0xFF2B3A8C) : Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isSelected ? Colors.deepPurple : Colors.grey.shade300,
+              color: isSelected ? const Color(0xFF2B3A8C) : Colors.grey.shade300,
               width: isSelected ? 2 : 1,
             ),
           ),

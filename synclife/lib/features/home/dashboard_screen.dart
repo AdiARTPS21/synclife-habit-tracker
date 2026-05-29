@@ -9,11 +9,11 @@ import '../habits/edit_habit_screen.dart';
 import '../logs/log_repository.dart';
 
 // Constants
-const Color bgColor = Color(0xFFF8F9FA);
+const Color bgColor = Color(0xFFEEF2FF);
 const Color primaryBlue = Color(0xFF2B3A8C);
 const Color softGreen = Color(0xFFA5D6A7);
 final BoxShadow cardShadow = BoxShadow(
-  color: Colors.black.withOpacity(0.05),
+  color: Colors.black.withValues(alpha: 0.05),
   blurRadius: 10,
   offset: const Offset(0, 4),
 );
@@ -170,7 +170,7 @@ class DashboardScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
+                            color: Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
@@ -201,7 +201,7 @@ class DashboardScreen extends ConsumerWidget {
                         CircularProgressIndicator(
                           value: result.percentage / 100,
                           strokeWidth: 8,
-                          backgroundColor: Colors.white.withOpacity(0.2),
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
                           valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                         Center(
@@ -236,7 +236,7 @@ class DashboardScreen extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: primaryBlue.withOpacity(0.1),
+                      color: primaryBlue.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.lightbulb_outline, color: primaryBlue, size: 20),
@@ -307,23 +307,77 @@ class DashboardScreen extends ConsumerWidget {
         habitsAsync.when(
           data: (habits) {
             if (habits.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.edit_calendar_rounded, size: 48, color: Colors.grey.shade300),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No habits for today.',
-                        style: GoogleFonts.inter(color: Colors.black45, fontSize: 14),
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [cardShadow],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: primaryBlue.withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
                       ),
-                    ],
-                  ),
+                      child: const Icon(
+                        Icons.edit_calendar_rounded,
+                        size: 48,
+                        color: primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Belum Ada Habit',
+                      style: GoogleFonts.outfit(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Yuk tambah kebiasaan pertamamu\ndan mulai perjalanan produktifmu!',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: Colors.grey.shade500,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const AddHabitScreen()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: primaryBlue,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '➕ Tambah Habit',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               );
             }
-            
+
             final sortedHabits = List.of(habits)
               ..sort((a, b) => a.targetWaktu.compareTo(b.targetWaktu));
 
@@ -337,35 +391,45 @@ class DashboardScreen extends ConsumerWidget {
                 final isCompleted = completedAsync.when(
                   data: (completedIds) => completedIds.contains(habit.idHabit),
                   loading: () => false,
-                  error: (_, __) => false,
+                  error: (_, _) => false,
                 );
 
                 return Opacity(
-                  opacity: isCompleted ? 0.5 : 1.0,
+                  opacity: isCompleted ? 0.6 : 1.0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isCompleted ? primaryBlue.withValues(alpha: 0.3) : Colors.grey.shade100,
+                        width: 1.5,
+                      ),
                       boxShadow: [cardShadow],
                     ),
                     child: Row(
                       children: [
                         Container(
-                          height: 48,
-                          width: 48,
+                          height: 52,
+                          width: 52,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(14),
+                            gradient: LinearGradient(
+                              colors: isCompleted
+                                  ? [primaryBlue.withValues(alpha: 0.8), primaryBlue]
+                                  : [primaryBlue.withValues(alpha: 0.08), primaryBlue.withValues(alpha: 0.15)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: Center(
                             child: Text(
                               habit.ikon.isNotEmpty ? habit.ikon : '⭐',
-                              style: const TextStyle(fontSize: 22),
+                              style: const TextStyle(fontSize: 24),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,18 +438,25 @@ class DashboardScreen extends ConsumerWidget {
                                 habit.namaHabit,
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                  color: Colors.black87,
+                                  fontSize: 15,
+                                  color: isCompleted ? Colors.grey.shade500 : Colors.black87,
+                                  decoration: isCompleted ? TextDecoration.lineThrough : null,
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                'Daily habit • ${habit.targetWaktu.length >= 5 ? habit.targetWaktu.substring(0, 5) : habit.targetWaktu}',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade500,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              Row(
+                                children: [
+                                  Icon(Icons.access_time_rounded, size: 12, color: Colors.grey.shade400),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Daily habit • ${habit.targetWaktu.length >= 5 ? habit.targetWaktu.substring(0, 5) : habit.targetWaktu}',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade500,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -408,24 +479,33 @@ class DashboardScreen extends ConsumerWidget {
                                 }
                               },
                               child: Container(
-                                width: 32,
-                                height: 32,
+                                width: 38,
+                                height: 38,
                                 decoration: BoxDecoration(
-                                  color: isCompleted ? softGreen : Colors.transparent,
+                                  color: isCompleted ? primaryBlue : Colors.white,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: isCompleted ? softGreen : Colors.grey.shade300,
+                                    color: isCompleted ? primaryBlue : Colors.grey.shade300,
                                     width: 2,
                                   ),
+                                  boxShadow: isCompleted ? [] : [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.06),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                                child: isCompleted 
-                                  ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
-                                  : null,
+                                child: Center(
+                                  child: isCompleted
+                                      ? const Icon(Icons.check_rounded, color: Colors.white, size: 20)
+                                      : const Icon(Icons.sentiment_satisfied_alt_rounded, color: Colors.grey, size: 22),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4),
                             PopupMenuButton<String>(
-                              icon: const Icon(Icons.more_vert_rounded, color: Colors.grey),
+                              icon: Icon(Icons.more_vert_rounded, color: Colors.grey.shade400),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               onSelected: (value) async {
                                 if (value == 'edit') {
@@ -496,7 +576,7 @@ class DashboardScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.show_chart_rounded, color: Colors.white, size: 28),
@@ -578,7 +658,7 @@ class DashboardScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: softGreen,
+                  color: const Color.fromARGB(255, 115, 221, 119),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [cardShadow],
                 ),
@@ -588,7 +668,7 @@ class DashboardScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.bolt_rounded, color: Colors.white, size: 24),
@@ -597,7 +677,7 @@ class DashboardScreen extends ConsumerWidget {
                     Text(
                       '98% FOCUS',
                       style: GoogleFonts.inter(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.0,

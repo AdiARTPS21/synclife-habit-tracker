@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -95,7 +96,7 @@ class _AddHabitScreenState extends ConsumerState<AddHabitScreen> {
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(primary: Colors.deepPurple),
+            colorScheme: const ColorScheme.light(primary: Color(0xFF2B3A8C)),
           ),
           child: child!,
         );
@@ -149,7 +150,7 @@ class _AddHabitScreenState extends ConsumerState<AddHabitScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
+                    borderSide: const BorderSide(color: Color(0xFF2B3A8C), width: 2),
                   ),
                 ),
                 validator: (value) {
@@ -168,7 +169,7 @@ class _AddHabitScreenState extends ConsumerState<AddHabitScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _icons.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  separatorBuilder: (_, _) => const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     final icon = _icons[index];
                     final isSelected = _selectedIcon == icon;
@@ -178,10 +179,10 @@ class _AddHabitScreenState extends ConsumerState<AddHabitScreen> {
                         duration: const Duration(milliseconds: 200),
                         width: 64,
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.deepPurple.withOpacity(0.1) : Colors.grey.shade50,
+                          color: isSelected ? const Color(0xFF2B3A8C).withValues(alpha: 0.1) : Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: isSelected ? Colors.deepPurple : Colors.grey.shade200,
+                            color: isSelected ? const Color(0xFF2B3A8C) : Colors.grey.shade200,
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -208,7 +209,7 @@ class _AddHabitScreenState extends ConsumerState<AddHabitScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.access_time_rounded, color: Colors.deepPurple),
+                      const Icon(Icons.access_time_rounded, color: Color(0xFF2B3A8C)),
                       const SizedBox(width: 12),
                       Text(
                         _selectedTime != null 
@@ -239,16 +240,16 @@ class _AddHabitScreenState extends ConsumerState<AddHabitScreen> {
                       decoration: BoxDecoration(
                         color: _hexToColor(hex),
                         shape: BoxShape.circle,
-                        border: isSelected ? Border.all(color: Colors.black87, width: 3) : null,
+                        border: isSelected ? Border.all(color: const Color(0xFF2B3A8C), width: 3) : null,
                         boxShadow: [
                           BoxShadow(
-                            color: _hexToColor(hex).withOpacity(0.4),
+                            color: _hexToColor(hex).withValues(alpha: 0.4),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                      child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
+                      child: isSelected ? const Icon(Icons.check, color: Color(0xFF2B3A8C), size: 20) : null,
                     ),
                   );
                 }).toList(),
@@ -261,7 +262,7 @@ class _AddHabitScreenState extends ConsumerState<AddHabitScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: const Color(0xFF2B3A8C),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
