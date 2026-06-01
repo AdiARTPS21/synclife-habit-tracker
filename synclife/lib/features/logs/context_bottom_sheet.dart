@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../home/dashboard_screen.dart';
 import '../../models/log_model.dart';
 import 'log_repository.dart';
-import '../predictor/frequency_repository.dart';
+import '../statistics/statistics_screen.dart';
+import '../home/dashboard_screen.dart';
 import '../predictor/prediction_provider.dart';
 
 class ContextBottomSheet extends ConsumerStatefulWidget {
@@ -18,62 +17,60 @@ class ContextBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _ContextBottomSheetState extends ConsumerState<ContextBottomSheet> {
-  int _selectedMood = 3; 
-  int _selectedBusy = 2; 
+  int _selectedMood = 3;
+  int _selectedBusy = 2;
   bool _isLoading = false;
 
   void _submit() async {
     setState(() => _isLoading = true);
 
     try {
-      // 1. Create Log Entry
       final logRepo = ref.read(logRepositoryProvider);
+      final logs = await logRepo.getLogs();
+      final now = DateTime.now();
+
+      // Cek duplikasi hari ini
+      final hasLoggedToday = logs.any((l) =>
+          l.idHabit == widget.habitId &&
+          l.status == true &&
+          l.timestamp?.year == now.year &&
+          l.timestamp?.month == now.month &&
+          l.timestamp?.day == now.day);
+
+      if (hasLoggedToday) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Habit sudah diselesaikan hari ini!"),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        setState(() => _isLoading = false);
+        return;
+      }
+
       final newLog = LogModel(
         idHabit: widget.habitId,
         moodLevel: _selectedMood,
         busyLevel: _selectedBusy,
-        status: true, // Success marked
-        timestamp: DateTime.now(),
+        status: true,
+        timestamp: now,
       );
+
       await logRepo.createLog(newLog);
 
-      // 2. Increment Frequencies for Naive Bayes Cache
-      final freqRepo = ref.read(frequencyRepositoryProvider);
-      await freqRepo.incrementFrequency(
-        variableType: 'mood',
-        variableValue: _selectedMood.toString(),
-        isSuccess: true,
-      );
-      await freqRepo.incrementFrequency(
-        variableType: 'busy',
-        variableValue: _selectedBusy.toString(),
-        isSuccess: true,
-      );
-
-      // 3. Trigger State Refresh (Invalidate cache to recalculate probability)
-      ref.invalidate(predictionProvider);
+      // Update semua provider
       ref.invalidate(todayCompletedHabitsProvider);
-
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Habit logged! Forecast updated.', style: GoogleFonts.inter()),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      ref.invalidate(statisticsProvider);
+      ref.invalidate(predictionProvider);
+      
+      if (mounted) Navigator.of(context).pop();
     } catch (e) {
+      setState(() => _isLoading = false);
       if (mounted) {
-        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.redAccent,
-            behavior: SnackBarBehavior.floating,
-          ),
+          SnackBar(content: Text('Error: $e')),
         );
       }
     }
@@ -92,71 +89,88 @@ class _ContextBottomSheetState extends ConsumerState<ContextBottomSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Handle bar
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
           Text(
             'Bagaimana perasaanmu?',
-            style: GoogleFonts.inter(
-              fontSize: 18,
+            style: GoogleFonts.outfit(
+              fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.black87,
             ),
           ),
           const SizedBox(height: 20),
+          // Emoji Selection
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(5, (index) {
               int moodValue = index + 1;
               bool isSelected = _selectedMood == moodValue;
               List<String> emojis = ['😢', '😕', '😐', '🙂', '😄'];
-              
               return GestureDetector(
                 onTap: () => setState(() => _selectedMood = moodValue),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF2B3A8C).withValues(alpha: 0.1) : Colors.transparent,
+                    color: isSelected
+                        ? const Color(0xFF2B3A8C).withValues(alpha: 0.1)
+                        : Colors.grey.shade50,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: isSelected ? const Color(0xFF2B3A8C) : Colors.grey.shade300,
+                      color: isSelected
+                          ? const Color(0xFF2B3A8C)
+                          : Colors.grey.shade300,
                       width: isSelected ? 2 : 1,
                     ),
                   ),
                   child: Text(
                     emojis[index],
-                    style: const TextStyle(fontSize: 32),
+                    style: TextStyle(fontSize: isSelected ? 32 : 26),
                   ),
                 ),
               );
             }),
           ),
-          const SizedBox(height: 36),
+          const SizedBox(height: 28),
           Text(
             'Tingkat Kesibukan',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: Colors.black87,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          // Busy Level Selection
           Row(
             children: [
-              _buildBusyOption(1, 'Santai'),
-              const SizedBox(width: 12),
-              _buildBusyOption(2, 'Sedang'),
-              const SizedBox(width: 12),
-              _buildBusyOption(3, 'Sangat Sibuk'),
+              _buildBusyButton(1, 'Santai'),
+              const SizedBox(width: 8),
+              _buildBusyButton(2, 'Sedang'),
+              const SizedBox(width: 8),
+              _buildBusyButton(3, 'Sangat\nSibuk'),
             ],
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 28),
+          // Submit Button
           SizedBox(
             width: double.infinity,
-            height: 56,
+            height: 54,
             child: ElevatedButton(
               onPressed: _isLoading ? null : _submit,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2B3A8C),
-                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -166,12 +180,16 @@ class _ContextBottomSheetState extends ConsumerState<ContextBottomSheet> {
                   ? const SizedBox(
                       width: 24,
                       height: 24,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
                     )
                   : Text(
                       'Simpan & Update Prediksi',
                       style: GoogleFonts.inter(
-                        fontSize: 16,
+                        color: Colors.white,
+                        fontSize: 15,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -182,29 +200,29 @@ class _ContextBottomSheetState extends ConsumerState<ContextBottomSheet> {
     );
   }
 
-  Widget _buildBusyOption(int value, String label) {
-    bool isSelected = _selectedBusy == value;
+  Widget _buildBusyButton(int value, String label) {
+    final isSelected = _selectedBusy == value;
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _selectedBusy = value),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF2B3A8C) : Colors.white,
+            color: isSelected ? const Color(0xFF2B3A8C) : Colors.grey.shade50,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: isSelected ? const Color(0xFF2B3A8C) : Colors.grey.shade300,
               width: isSelected ? 2 : 1,
             ),
           ),
-          alignment: Alignment.center,
           child: Text(
             label,
+            textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               color: isSelected ? Colors.white : Colors.black87,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             ),
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../logs/log_repository.dart';
+import '../habits/habit_repository.dart';
 
 class PredictionResult {
   final double percentage;
@@ -11,6 +12,8 @@ class PredictionResult {
 final predictionProvider = FutureProvider<PredictionResult>((ref) async {
   final logRepo = ref.watch(logRepositoryProvider);
   final logs = await logRepo.getLogs();
+  final habitRepo = ref.watch(habitRepositoryProvider);
+  final habits = await habitRepo.getHabits();
 
   if (logs.length < 5) {
     return PredictionResult(
@@ -23,6 +26,22 @@ final predictionProvider = FutureProvider<PredictionResult>((ref) async {
   final now = DateTime.now();
   final int currentDay = now.weekday; // 1 = Mon, 7 = Sun
   final bool isMorning = now.hour < 15; // < 3 PM is morning
+  final todayLogs = logs.where((l) {
+        return l.status &&
+            l.timestamp != null &&
+            l.timestamp!.year == now.year &&
+            l.timestamp!.month == now.month &&
+            l.timestamp!.day == now.day;
+      }).toList();
+
+      final completedToday =
+          todayLogs.map((e) => e.idHabit).toSet().length;
+
+      final totalHabits = habits.length;
+
+      final focusScore = totalHabits == 0
+          ? 0
+          : ((completedToday / totalHabits) * 100);
   
   // Last recorded mood
   final int lastMood = logs.isNotEmpty ? logs.first.moodLevel : 3;
@@ -101,10 +120,17 @@ final predictionProvider = FutureProvider<PredictionResult>((ref) async {
   double postSuccess = priorSuccess * lDaySuccess * lTimeSuccess * lMoodSuccess;
   double postFail = priorFail * lDayFail * lTimeFail * lMoodFail;
 
-  double percentage = 50.0;
-  if (postSuccess + postFail > 0) {
-    percentage = (postSuccess / (postSuccess + postFail)) * 100;
-  }
+  double percentage = focusScore.toDouble();
+
+    if (postSuccess + postFail > 0) {
+      final aiScore =
+          (postSuccess / (postSuccess + postFail)) * 100;
+
+          percentage = ((focusScore * 0.7) +
+              (aiScore * 0.3));
+
+          percentage = percentage.clamp(0.0, 100.0).toDouble();
+    }
 
   // Insight Generation (Identify the lowest likelihood factor for success)
   String insightText = 'Insight: Anda berada di jalur yang tepat! Pertahankan kebiasaan baik ini.';

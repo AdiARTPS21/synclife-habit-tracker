@@ -5,13 +5,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../settings/settings_screen.dart';
 import '../statistics/statistics_screen.dart';
 import 'dashboard_screen.dart';
+import '../../core/constants/providers/theme_provider.dart';
 
-// NotifierProvider to track the current index of the bottom navigation
+// Provider untuk track index navigasi
 class BottomNavIndexNotifier extends Notifier<int> {
   @override
   int build() => 0;
-
-
   void setIndex(int index) => state = index;
 }
 
@@ -29,38 +28,47 @@ class MainScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(bottomNavIndexProvider);
+    final isDarkMode = ref.watch(themeProvider) == ThemeMode.dark;
+    
+    // Warna Utama
     const Color primaryBlue = Color(0xFF2B3A8C);
+    
+    // Warna Dinamis
+    final backgroundColor = isDarkMode ? const Color(0xFF121212) : Colors.white;
+    final iconColor = isDarkMode ? Colors.grey.shade600 : Colors.grey;
+    final selectedIconColor = isDarkMode ? Colors.white : primaryBlue;
+    final labelColor = isDarkMode ? Colors.grey.shade400 : Colors.grey;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       body: IndexedStack(
         index: currentIndex,
         children: _pages,
       ),
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          backgroundColor: Colors.white,
+          backgroundColor: backgroundColor,
           elevation: 0,
-          indicatorColor: primaryBlue.withValues(alpha: 0.1),
+          indicatorColor: primaryBlue.withValues(alpha: isDarkMode ? 0.3 : 0.1),
           labelTextStyle: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
               return GoogleFonts.inter(
-                color: primaryBlue,
+                color: selectedIconColor,
                 fontWeight: FontWeight.w600,
                 fontSize: 12,
               );
             }
             return GoogleFonts.inter(
-              color: Colors.grey,
+              color: labelColor,
               fontWeight: FontWeight.w500,
               fontSize: 12,
             );
           }),
           iconTheme: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
-              return const IconThemeData(color: primaryBlue);
+              return IconThemeData(color: selectedIconColor);
             }
-            return const IconThemeData(color: Colors.grey);
+            return IconThemeData(color: iconColor);
           }),
         ),
         child: NavigationBar(
@@ -71,16 +79,16 @@ class MainScreen extends ConsumerWidget {
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.grid_view_rounded),
-              label: 'Dashboard',
+              label: 'Beranda',
             ),
             NavigationDestination(
               icon: Icon(Icons.bar_chart_rounded),
-              label: 'Statistics',
+              label: 'Statistik',
             ),
             NavigationDestination(
               icon: Icon(Icons.settings_outlined),
               selectedIcon: Icon(Icons.settings),
-              label: 'Settings',
+              label: 'Pengaturan',
             ),
           ],
         ),

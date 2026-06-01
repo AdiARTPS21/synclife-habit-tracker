@@ -109,7 +109,7 @@ class _EditHabitScreenState extends ConsumerState<EditHabitScreen> {
       await repo.updateHabit(updatedHabit);
 
       // Refresh Dashboard
-      ref.invalidate(habitsFutureProvider);
+      ref.invalidate(habitsProvider);
 
       if (mounted) {
         Navigator.pop(context);

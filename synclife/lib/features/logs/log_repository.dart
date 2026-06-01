@@ -80,4 +80,10 @@ class LogRepository {
         .delete()
         .eq('id_log', idLog);
   }
+  Future<void> deleteLogsByHabitId(String idHabit) async {
+  await _supabase
+      .from(_tableName)
+      .delete()
+      .eq('id_habit', idHabit);
+  }
 }

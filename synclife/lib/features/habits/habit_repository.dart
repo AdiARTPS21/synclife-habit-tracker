@@ -36,6 +36,19 @@ class HabitRepository {
     return response.map((json) => HabitModel.fromJson(json)).toList();
   }
 
+  // REALTIME STREAM
+  Stream<List<HabitModel>> watchHabits() {
+    return _supabase
+        .from(_tableName)
+        .stream(primaryKey: ['id_habit'])
+        .order('created_at', ascending: false)
+        .map(
+          (data) => data
+              .map((json) => HabitModel.fromJson(json))
+              .toList(),
+        );
+  }
+
   // READ SINGLE
   Future<HabitModel> getHabitById(String idHabit) async {
     final response = await _supabase

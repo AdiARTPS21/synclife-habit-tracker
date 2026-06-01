@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../models/habit_model.dart';
 import 'habit_repository.dart';
 import '../home/dashboard_screen.dart'; // For habitsFutureProvider
+import '../../core/constants/providers/theme_provider.dart';
 
 class AddHabitScreen extends ConsumerStatefulWidget {
   const AddHabitScreen({super.key});
@@ -67,7 +68,7 @@ class _AddHabitScreenState extends ConsumerState<AddHabitScreen> {
       await repo.createHabit(newHabit);
 
       // Invalidate dashboard provider so it fetches the new list
-      ref.invalidate(habitsFutureProvider);
+      ref.invalidate(habitsProvider);
 
       if (mounted) {
         Navigator.pop(context);
@@ -116,178 +117,155 @@ class _AddHabitScreenState extends ConsumerState<AddHabitScreen> {
     return Color(int.parse(buffer.toString(), radix: 16));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'Tambah Kebiasaan',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: Colors.black87),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+@override
+Widget build(BuildContext context) {
+  final isDarkMode = ref.watch(themeProvider) == ThemeMode.dark;
+  
+  // Variabel warna dinamis
+  final backgroundColor = isDarkMode ? const Color(0xFF121212) : Colors.white;
+  final textColor = isDarkMode ? Colors.white : Colors.black87;
+  final inputFillColor = isDarkMode ? Colors.grey.shade900 : Colors.grey.shade50;
+  final borderColor = isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200;
+
+  return Scaffold(
+    backgroundColor: backgroundColor,
+    appBar: AppBar(
+      title: Text(
+        'Tambah Kebiasaan',
+        style: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: textColor),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Nama Kebiasaan', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16)),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  hintText: 'Misal: Olahraga Pagi, Minum Air',
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: Color(0xFF2B3A8C), width: 2),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Nama kebiasaan tidak boleh kosong';
-                  }
-                  return null;
-                },
+      backgroundColor: backgroundColor,
+      elevation: 0,
+      iconTheme: IconThemeData(color: textColor),
+    ),
+    body: SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Nama Kebiasaan
+            Text('Nama Kebiasaan', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16, color: textColor)),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: _nameController,
+              style: TextStyle(color: textColor),
+              decoration: InputDecoration(
+                hintText: 'Misal: Olahraga Pagi, Minum Air',
+                hintStyle: TextStyle(color: isDarkMode ? Colors.grey.shade600 : Colors.grey.shade400),
+                filled: true,
+                fillColor: inputFillColor,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Color(0xFF2B3A8C), width: 2)),
               ),
-              const SizedBox(height: 28),
-              
-              Text('Pilih Ikon', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16)),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 64,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _icons.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final icon = _icons[index];
-                    final isSelected = _selectedIcon == icon;
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedIcon = icon),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 64,
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF2B3A8C).withValues(alpha: 0.1) : Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected ? const Color(0xFF2B3A8C) : Colors.grey.shade200,
-                            width: isSelected ? 2 : 1,
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(icon, style: const TextStyle(fontSize: 28)),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 28),
-
-              Text('Target Waktu', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16)),
-              const SizedBox(height: 12),
-              InkWell(
-                onTap: _selectTime,
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey.shade200),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.access_time_rounded, color: Color(0xFF2B3A8C)),
-                      const SizedBox(width: 12),
-                      Text(
-                        _selectedTime != null 
-                            ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
-                            : 'Pilih waktu...',
-                        style: GoogleFonts.inter(
-                          fontSize: 16, 
-                          color: _selectedTime != null ? Colors.black87 : Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 28),
-
-              Text('Warna Tag', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16)),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: _colors.map((hex) {
-                  final isSelected = _selectedColor == hex;
+              validator: (value) => (value == null || value.trim().isEmpty) ? 'Nama tidak boleh kosong' : null,
+            ),
+            
+            const SizedBox(height: 28),
+            
+            // Pilih Ikon
+            Text('Pilih Ikon', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16, color: textColor)),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 64,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _icons.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
+                itemBuilder: (context, index) {
+                  final icon = _icons[index];
+                  final isSelected = _selectedIcon == icon;
                   return GestureDetector(
-                    onTap: () => setState(() => _selectedColor = hex),
-                    child: Container(
-                      width: 44,
-                      height: 44,
+                    onTap: () => setState(() => _selectedIcon = icon),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 64,
                       decoration: BoxDecoration(
-                        color: _hexToColor(hex),
-                        shape: BoxShape.circle,
-                        border: isSelected ? Border.all(color: const Color(0xFF2B3A8C), width: 3) : null,
-                        boxShadow: [
-                          BoxShadow(
-                            color: _hexToColor(hex).withValues(alpha: 0.4),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                        color: isSelected ? const Color(0xFF2B3A8C).withValues(alpha: 0.1) : inputFillColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: isSelected ? const Color(0xFF2B3A8C) : borderColor),
                       ),
-                      child: isSelected ? const Icon(Icons.check, color: Color(0xFF2B3A8C), size: 20) : null,
+                      alignment: Alignment.center,
+                      child: Text(icon, style: const TextStyle(fontSize: 28)),
                     ),
                   );
-                }).toList(),
+                },
               ),
-              const SizedBox(height: 48),
+            ),
 
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2B3A8C),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+            const SizedBox(height: 28),
+
+            // Target Waktu
+            Text('Target Waktu', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16, color: textColor)),
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: _selectTime,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                decoration: BoxDecoration(
+                  color: inputFillColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.access_time_rounded, color: Color(0xFF2B3A8C)),
+                    const SizedBox(width: 12),
+                    Text(
+                      _selectedTime != null 
+                          ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+                          : 'Pilih waktu...',
+                      style: GoogleFonts.inter(fontSize: 16, color: _selectedTime != null ? textColor : Colors.grey),
                     ),
-                    elevation: 0,
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                      : Text(
-                          'Simpan Kebiasaan',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+            
+            const SizedBox(height: 28),
+
+            // Warna Tag
+            Text('Warna Tag', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 16, color: textColor)),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: _colors.map((hex) {
+                final isSelected = _selectedColor == hex;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedColor = hex),
+                  child: Container(
+                    width: 44, height: 44,
+                    decoration: BoxDecoration(
+                      color: _hexToColor(hex),
+                      shape: BoxShape.circle,
+                      border: isSelected ? Border.all(color: textColor, width: 3) : null,
+                    ),
+                    child: isSelected ? Icon(Icons.check, color: isDarkMode ? Colors.black : Colors.white, size: 20) : null,
+                  ),
+                );
+              }).toList(),
+            ),
+
+            const SizedBox(height: 48),
+
+            // Tombol Simpan
+            SizedBox(
+              width: double.infinity, height: 56,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2B3A8C),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: Text(_isLoading ? 'Menyimpan...' : 'Simpan Kebiasaan', style: const TextStyle(color: Colors.white)),
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
